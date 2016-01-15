@@ -3,11 +3,28 @@ $(document).ready(function(){
 var typeString = prompt("What fact types? (+,-,x,/) separated by commas");
 var typeArray = typeString.split(",");
 
-var familyString = prompt("What fact families? 1-10 separated by commas");
+var familyString = prompt("What primary fact families? (75% of questions)");
+
 var familyArray = familyString.split(",");
+var rFamilyArray = [];
 for (var i = 0; i<familyArray.length; i++){
-	familyArray[i] = Number(familyArray[i])
+	familyArray[i] = Number(familyArray[i]);
+  for (var j = 0; j<3; j++) {
+    rFamilyArray.push(familyArray[i]);
+  }
 }
+
+var secondaryFamilyString = prompt("What secondary fact families? (25% of questions)")
+if (secondaryFamilyString.length > 0){
+  console.log(secondaryFamilyString);
+  var secondaryFamilyArray = secondaryFamilyString.split(",");
+  for (var i = 0; i<secondaryFamilyArray.length; i++){
+    secondaryFamilyArray[i] = Number(secondaryFamilyArray[i]);
+    rFamilyArray.push(secondaryFamilyArray[i]);
+  }
+}
+
+console.log(rFamilyArray);
 
 var rows = Number(prompt("How many rows?"));
 var columns = Number(prompt("How many columns?"));
@@ -28,17 +45,20 @@ function getFact(factType, factFamily) {
 
   var problem = [];
 
-  if (factType == "x" || factType == "+") {
-    var firstNumber = Math.floor(Math.random() * 10);
-    var secondNumber = factFamily
-    problem = [factType, firstNumber, secondNumber];
-    //switch first and second number randomly
+  function randomize(problem) {
     var randomizer = (Math.floor((Math.random() * 2)));
     if (randomizer == 1) {
       var b = problem[1];
       problem[1] = problem[2];
       problem[2] = b;
     }
+  }
+
+  if (factType == "x") {
+    var firstNumber = Math.floor(Math.random() * 10);
+    var secondNumber = factFamily
+    problem = [factType, firstNumber, secondNumber];
+    randomize(problem)
   }
 
   if (factType == "/") {
@@ -48,17 +68,16 @@ function getFact(factType, factFamily) {
     //first and second numbers not interchangeable
   }
 
+  if (factType == "+") {
+    var firstNumber = factFamily - Math.floor(Math.random() * (factFamily+1));
+    var secondNumber = factFamily - firstNumber;
+    problem = [factType, firstNumber, secondNumber];
+    randomize(problem)
+  }
+
   if (factType == "-") {
-    var num = Math.floor((Math.random() * (10 + factFamily)) + 1);
-    var firstNumber;
-    var secondNumber;
-    if (num > factFamily) {
-      firstNumber = num;
-      secondNumber = factFamily;
-    } else {
-      firstNumber = factFamily;
-      secondNumber = num;
-    }
+    var firstNumber = factFamily
+    var secondNumber = Math.floor(Math.random() * (factFamily + 1))
     problem = [factType, firstNumber, secondNumber];
     //first and second numbers not interchangeable
   }
@@ -66,7 +85,7 @@ function getFact(factType, factFamily) {
   return problem;
 }
 
-var data = getProblems(typeArray,familyArray,number)
+var data = getProblems(typeArray,rFamilyArray,number)
 
 var tableString = ""
 
